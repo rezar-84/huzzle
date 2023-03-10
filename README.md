@@ -1,4 +1,4 @@
-# huzzle
+# Huzzle
 
 # Property Listing Portal
 
