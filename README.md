@@ -18,7 +18,7 @@ This project is a property listing portal that allows users to search, browse, a
 
 ## Technologies
 
-- Drupal 9 as the CMS framework
+- Drupal 10 as the CMS framework
 - Bootstrap 4 as the front-end framework
 - MySQL as the database
 - PHP as the server-side language
@@ -41,6 +41,16 @@ To install this project locally, you need to have Drupal 9, MySQL, PHP, and Comp
 
 You can see a live demo of this project at .
 
+## Contrib Modules
+#### Admin
+- Coffee
+- Token
+- VBO
+### Seo
+- Pathauto
+- Redirect
+- Metatag
+- Xmlsitemap
 ## License
 
 
