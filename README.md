@@ -1,8 +1,8 @@
 # Huzzle
+This project is a property listing portal that allows users to search, browse, and compare properties for sale or rent. It is similar to Zillow in terms of functionality and features. It is built with Drupal and sponsored by https://housify.co
 
-# Property Listing Portal
+## Property Listing Portal
 
-This project is a property listing portal that allows users to search, browse, and compare properties for sale or rent. It is similar to Zillow in terms of functionality and features. It is built with Drupal and sponsored by  [https://housify.co](https://housify.co)
 
 ## Features
 
