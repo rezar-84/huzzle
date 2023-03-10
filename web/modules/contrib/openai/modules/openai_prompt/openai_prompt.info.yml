@@ -1,0 +1,12 @@
+name: OpenAI Prompt
+type: module
+description: Adds a form in the admin to enter a prompt and get a response back from OpenAI, similar to ChatGPT.
+package: OpenAI
+core_version_requirement: ^10
+dependencies:
+  - openai:openai
+
+# Information added by Drupal.org packaging script on 2023-03-06
+version: '1.0.0-alpha5'
+project: 'openai'
+datestamp: 1678111962

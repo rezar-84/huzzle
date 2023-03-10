@@ -1,0 +1,14 @@
+services:
+  logger.channel.openai_api:
+    parent: logger.channel_base
+    arguments: ['openai_api']
+  openai_api.generation.service:
+    class: Drupal\openai_api\GenerationService
+  openai_api.content_generation.commands:
+    class: \Drupal\openai_api\Commands\ContentGenerationCommand
+    tags:
+      - { name: drush.command }
+  openai_api.media_generation.commands:
+    class: \Drupal\openai_api\Commands\BatchMediaGenerationCommands
+    tags:
+      - { name: drush.command }

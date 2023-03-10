@@ -1,0 +1,29 @@
+openai_embeddings.settings:
+  path: '/admin/config/openai/openai-embeddings/settings'
+  defaults:
+    _title: 'Embeddings settings'
+    _form: 'Drupal\openai_embeddings\Form\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'
+openai_embeddings.search:
+  path: '/admin/config/openai/openai-embeddings/settings/test-search'
+  defaults:
+    _title: 'Search test'
+    _form: 'Drupal\openai_embeddings\Form\SearchForm'
+  requirements:
+    _permission: 'administer site configuration'
+openai_embeddings.stats:
+  path: '/admin/config/openai/openai-embeddings/settings/stats'
+  defaults:
+    _title: 'Pinecone stats'
+    _controller: 'Drupal\openai_embeddings\Controller\PineconeStats::index'
+  requirements:
+    _permission: 'administer site configuration'
+
+openai_embeddings.delete_confirm:
+  path: '/admin/config/openai/openai-embeddings/delete'
+  defaults:
+    _title: 'Delete items'
+    _form: 'Drupal\openai_embeddings\Form\DeleteConfirmForm'
+  requirements:
+    _permission: 'administer site configuration'

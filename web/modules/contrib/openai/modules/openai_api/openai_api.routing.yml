@@ -1,0 +1,15 @@
+openai_api.content_generation_config:
+  path: '/admin/config/openai/openai-api/content-generation'
+  defaults:
+    _title: 'Content Generation'
+    _form: 'Drupal\openai_api\Form\ContentGenerationConfigForm'
+  requirements:
+    _permission: 'administer site configuration'
+
+openai_api.image_generation_config:
+  path: '/admin/config/openai/openai-api/image-generation'
+  defaults:
+    _title: 'Image Generation'
+    _form: 'Drupal\openai_api\Form\ImageGenerationConfigForm'
+  requirements:
+    _permission: 'administer site configuration'

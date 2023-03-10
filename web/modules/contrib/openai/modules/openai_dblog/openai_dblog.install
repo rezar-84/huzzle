@@ -1,0 +1,55 @@
+<?php
+
+/**
+ * @file
+ * Contains code to run install based tasks for the module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function openai_dblog_schema() {
+  $schema['openai_dblog'] = [
+    'description' => 'Stores OpenAI responses returned for log messages.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'The openai_dblog record ID.',
+      ],
+      'hash' => [
+        'type' => 'varchar_ascii',
+        'not null' => TRUE,
+        'length' => 256,
+        'description' => 'Hash value of the original log message for comparison.',
+      ],
+      'message' => [
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'big',
+        'description' => 'Text of log message to be passed into the t() function.',
+      ],
+      'explanation' => [
+        'type' => 'text',
+        'not null' => TRUE,
+        'size' => 'big',
+        'description' => 'Text of OpenAI explanation returned.',
+      ],
+    ],
+    'primary key' => [
+      'id',
+    ],
+    'unique keys' => [
+      [
+        'hash' => 'hash',
+      ],
+    ],
+    'indexes' => [
+      'hash' => [
+        'hash',
+      ],
+    ],
+  ];
+
+  return $schema;
+}

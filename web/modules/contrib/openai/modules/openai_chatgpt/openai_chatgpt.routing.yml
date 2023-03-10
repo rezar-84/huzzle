@@ -1,0 +1,7 @@
+openai_chatgpt.chat_form:
+  path: '/admin/config/openai/chatgpt'
+  defaults:
+    _title: 'OpenAI ChatGPT Explorer'
+    _form: 'Drupal\openai_chatgpt\Form\ChatGptForm'
+  requirements:
+    _permission: 'access openai chatgpt'

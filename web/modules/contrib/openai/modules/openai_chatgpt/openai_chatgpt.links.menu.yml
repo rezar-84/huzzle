@@ -1,0 +1,5 @@
+openai_chatgpt.chat_form:
+  title: ChatGPT explorer
+  description: Contains a form where you can experiment and test the OpenAI ChatGPT endpoint.
+  parent: openai.admin_config_openai
+  route_name: openai_chatgpt.chat_form

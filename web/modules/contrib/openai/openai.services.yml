@@ -1,0 +1,7 @@
+services:
+  openai.client:
+    class: OpenAI\Client
+    factory: ['@openai.client_factory', create]
+  openai.client_factory:
+    class: Drupal\openai\Http\ClientFactory
+    arguments: ['@config.factory']

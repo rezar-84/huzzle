@@ -1,0 +1,26 @@
+openai_embeddings.settings:
+  route_name: openai_embeddings.settings
+  base_route: openai_embeddings.settings
+
+openai_embeddings.settings_overview:
+  title: Settings
+  route_name: openai_embeddings.settings
+  parent_id: openai_embeddings.settings
+
+openai_embeddings.search:
+  title: Search test
+  route_name: openai_embeddings.search
+  parent_id: openai_embeddings.settings
+  weight: 1
+
+openai_embeddings.stats:
+  title: Index Stats
+  route_name: openai_embeddings.stats
+  parent_id: openai_embeddings.settings
+  weight: 2
+
+openai_embeddings.delete:
+  title: Delete items
+  route_name: openai_embeddings.delete_confirm
+  parent_id: openai_embeddings.settings
+  weight: 3

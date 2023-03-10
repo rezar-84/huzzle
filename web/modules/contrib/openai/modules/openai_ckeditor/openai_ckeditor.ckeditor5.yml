@@ -1,0 +1,18 @@
+openai_ckeditor_completion:
+  ckeditor5:
+    plugins:
+      - openai_completion.Completion
+
+  drupal:
+    label: OpenAI Text Generator
+    library: openai_ckeditor/completion
+    admin_library: openai_ckeditor/admin.completion
+    toolbar_items:
+      completion:
+        label: OpenAI Text Generator
+    elements: false
+    # *Additional configuration properties*
+    # conditions: for setting additional criteria that must be met for the
+    #   plugin to be active.
+    # class: Optional PHP class that makes it possible for the plugin to provide
+    #   dynamic values, or a configuration UI.

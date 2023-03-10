@@ -1,0 +1,11 @@
+openai.admin_config_openai:
+  title: 'OpenAI'
+  parent: system.admin_config
+  route_name: openai.admin_config_openai
+
+openai.api_settings:
+  title: Settings
+  description: Manage OpenAI settings, API keys, and organization ID.
+  parent: openai.admin_config_openai
+  route_name: openai.api_settings
+  weight: -100

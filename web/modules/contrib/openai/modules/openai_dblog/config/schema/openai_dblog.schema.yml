@@ -1,0 +1,13 @@
+openai_dblog.settings:
+  type: config_object
+  label: 'OpenAI Log Analyzer settings'
+  mapping:
+    levels:
+      type: mapping
+      label: 'Enabled log levels'
+      sequence:
+        type: string
+        label: 'Level'
+    model:
+      type: string
+      label: 'OpenAI model to use'

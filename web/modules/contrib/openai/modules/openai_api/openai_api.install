@@ -1,0 +1,40 @@
+<?php
+
+/**
+ * @file
+ * Install hooks for the OpenAI_api module.
+ */
+
+use Drupal\taxonomy\Entity\Vocabulary;
+
+/**
+ * Implements hook_install().
+ *
+ * @throws \Drupal\Core\Entity\EntityStorageException
+ */
+function openai_api_install(): void {
+  // Create openai_subjects vocabulary if not exist.
+  $vocabulary_name = 'openai_subjects';
+
+  if (!Vocabulary::load($vocabulary_name)) {
+    Vocabulary::create([
+      'vid' => $vocabulary_name,
+      'description' => 'Subjects for OpenAI content generation.',
+      'name' => 'OpenAI subjects',
+    ])->save();
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * @throws \Drupal\Core\Entity\EntityStorageException
+ */
+function openai_api_uninstall(): void {
+  // Delete openai_subjects vocabulary if exist.
+  $vocabulary_name = 'openai_subjects';
+
+  if ($vocabulary = Vocabulary::load($vocabulary_name)) {
+    $vocabulary->delete();
+  }
+}

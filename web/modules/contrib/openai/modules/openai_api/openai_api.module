@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Primary module hooks for openai api module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function openai_api_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    case 'help.page.openai_api':
+      $output = '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('This module help generating coherent content using OpenAI AI.') . '</p>';
+      $output .= '<p>' . t('It provides 2 config form, first for setting up credentials to use OpenAI API and another to generate content with subjects in a vocabulary created at the installation of the module.
+                                  All detailed instructions for use is in the readme.') . '</p>';
+
+      return $output;
+
+    default:
+  }
+}

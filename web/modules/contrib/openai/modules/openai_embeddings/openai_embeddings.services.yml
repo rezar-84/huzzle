@@ -1,0 +1,4 @@
+services:
+  openai_embeddings.pinecone_client:
+    class: Drupal\openai_embeddings\Http\PineconeClient
+    arguments: ['@http_client_factory', '@config.factory']

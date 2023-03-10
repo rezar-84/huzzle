@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * @file
+ * Contains hook implementations for this module.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+
+/**
+ * Implements hook_entity_insert().
+ */
+function openai_embeddings_entity_insert(EntityInterface $entity) {
+  _insert_queue_item($entity);
+}
+
+/**
+ * Implements hook_entity_update().
+ */
+function openai_embeddings_entity_update(EntityInterface $entity) {
+  _insert_queue_item($entity);
+}
+
+/**
+ * Implements hook_entity_delete().
+ */
+function openai_embeddings_entity_delete(EntityInterface $entity) {
+  /** @var \Drupal\openai_embeddings\Http\PineconeClient $pinecone */
+  $pinecone = \Drupal::service('openai_embeddings.pinecone_client');
+
+  try {
+    $records = \Drupal::database()->query('SELECT entity_id, entity_type, field_name FROM {openai_embeddings} WHERE entity_id = :entity_id AND entity_type = :entity_type',
+      [
+        ':entity_id' => $entity->id(),
+        ':entity_type' => $entity->getEntityTypeId(),
+      ]
+    );
+
+    foreach ($records as $record) {
+      $pinecone->delete(
+        [],
+        FALSE,
+        $record->entity_type . ':' . $record->field_name,
+        [
+          'entity_id' => $entity->id(),
+          'entity_type' => $entity->getEntityTypeId(),
+          'bundle' => $entity->bundle(),
+        ]
+      );
+    }
+  }
+  catch (\Exception $e) {
+    \Drupal::logger('openai_embeddings')->error('Error trying to delete record(s) in Pinecone.');
+  }
+
+  \Drupal::database()->delete('openai_embeddings')
+    ->condition('entity_id', $entity->id())
+    ->condition('entity_type', $entity->getEntityTypeId())
+    ->execute();
+}
+
+/**
+ * Inserts a content entity into the job queue.
+ *
+ * @param $entity
+ *   The content entity.
+ */
+function _insert_queue_item($entity) {
+  $config = \Drupal::config('openai_embeddings.settings');
+  $entity_types = $config->get('entity_types');
+
+  if (!empty($entity_types) && array_key_exists($entity->getEntityTypeId(), $entity_types)) {
+    if (in_array($entity->bundle(), $entity_types[$entity->getEntityTypeId()])) {
+      $queue = \Drupal::service('queue')->get('embedding_queue');
+      $item = [];
+      $item['entity_id'] = $entity->id();
+      $item['entity_type'] = $entity->getEntityTypeId();
+      $item['bundle'] = $entity->bundle();
+      $queue->createItem($item);
+    }
+  }
+}

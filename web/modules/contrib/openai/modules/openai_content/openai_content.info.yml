@@ -1,0 +1,12 @@
+name: OpenAI Content Tools
+type: module
+description: Adds assistive tools for different areas of the content editing process. This module is experimental.
+package: OpenAI
+core_version_requirement: ^10
+dependencies:
+  - openai:openai_embeddings
+
+# Information added by Drupal.org packaging script on 2023-03-06
+version: '1.0.0-alpha5'
+project: 'openai'
+datestamp: 1678111962

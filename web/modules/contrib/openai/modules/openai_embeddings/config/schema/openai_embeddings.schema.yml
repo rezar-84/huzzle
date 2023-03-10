@@ -1,0 +1,33 @@
+openai_embeddings.settings:
+  type: config_object
+  label: 'Embeddings settings'
+  mapping:
+    entity_types:
+      type: sequence
+      label: 'Enabled entity types and their bundles.'
+      sequence:
+        type: sequence
+        label: 'Entity type'
+        sequence:
+          type: sequence
+          label: 'Bundle'
+    stopwords:
+      type: sequence
+      label: 'A list of words to not include in the text embedding.'
+      sequence:
+        type: sequence
+        label: 'Stopword'
+    model:
+      type: string
+      label: 'OpenAI model to use'
+
+openai_embeddings.pinecone_client:
+  type: config_object
+  label: 'Pinecone client settings'
+  mapping:
+    api_key:
+      type: string
+      label: 'The Pinecone API key.'
+    hostname:
+      type: string
+      label: 'The hostname or base URI of the API.'

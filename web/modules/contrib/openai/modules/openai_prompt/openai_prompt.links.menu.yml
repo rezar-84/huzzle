@@ -1,0 +1,5 @@
+openai_prompt.prompt_form:
+  title: Prompt explorer
+  description: Contains a form where you can experiment and test the OpenAI text generator with prompts.
+  parent: openai.admin_config_openai
+  route_name: openai_prompt.prompt_form

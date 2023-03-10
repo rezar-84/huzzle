@@ -1,0 +1,7 @@
+openai_dblog.settings:
+  path: '/admin/config/openai/openai-dblog/settings'
+  defaults:
+    _title: 'OpenAI Log Analyzer settings'
+    _form: 'Drupal\openai_dblog\Form\SettingsForm'
+  requirements:
+    _permission: 'administer site configuration'

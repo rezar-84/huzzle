@@ -1,0 +1,88 @@
+<?php
+
+/**
+ * @file
+ * Contains code to run install based tasks for the module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function openai_embeddings_schema() {
+  $schema['openai_embeddings'] = [
+    'description' => 'Stores embedding data from OpenAI in Drupal.',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'not null' => TRUE,
+        'description' => 'The openai_search record ID.',
+      ],
+      'entity_id' => [
+        'description' => 'The entity id this record affects (1, 2, 3).',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'entity_type' => [
+        'type' => 'varchar_ascii',
+        'length' => 64,
+        'not null' => TRUE,
+        'description' => 'The entity type (node, paragraph, user, etc).',
+      ],
+      'bundle' => [
+        'type' => 'varchar_ascii',
+        'length' => 64,
+        'not null' => TRUE,
+        'description' => 'The entity bundle.',
+      ],
+      'field_name' => [
+        'type' => 'varchar_ascii',
+        'length' => 128,
+        'description' => 'The field name the embedding was generated from (title, field_body, etc).',
+      ],
+      'field_delta' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+        'description' => 'The field delta position this embedding was generated from.',
+      ],
+      'embedding' => [
+        'mysql_type' => 'json',
+        'pgsql_type' => 'jsonb',
+        'size' => 'big',
+        'description' => 'The embedding values from OpenAI.',
+      ],
+      'data' => [
+        'mysql_type' => 'json',
+        'pgsql_type' => 'jsonb',
+        'not null' => FALSE,
+        'size' => 'big',
+        'description' => 'Usage and misc data returned from OpenAI. Useful for debugging or viewing how many tokens an embedding used.',
+      ],
+    ],
+    'primary key' => [
+      'id',
+    ],
+    'indexes' => [
+      'entity_id' => [
+        'entity_id',
+      ],
+      'entity_type' => [
+        'entity_type',
+      ],
+      'bundle' => [
+        'bundle',
+      ],
+      'field_name' => [
+        'field_name',
+      ],
+      'field_delta' => [
+        'field_delta',
+      ],
+    ],
+  ];
+
+  return $schema;
+}

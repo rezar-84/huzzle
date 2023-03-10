@@ -1,0 +1,13 @@
+completion:
+  css:
+    theme:
+      css/editor-form.css: { preprocess: false, minified: false }
+  js:
+    js/build/openai_completion.js: { preprocess: false, minified: true }
+  dependencies:
+    - core/ckeditor5
+
+admin.completion:
+  css:
+    theme:
+      css/completion.css: { }

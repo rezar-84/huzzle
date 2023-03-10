@@ -1,0 +1,5 @@
+services:
+  openai_dblog.route_subscriber:
+    class: Drupal\openai_dblog\Routing\RouteSubscriber
+    tags:
+      - { name: event_subscriber }

@@ -1,0 +1,266 @@
+<?php
+
+/**
+ * @file
+ * Contains hook implementations for this module.
+ */
+
+use Drupal\Core\Ajax\AjaxResponse;
+use Drupal\Core\Ajax\HtmlCommand;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\node\NodeInterface;
+use Drupal\Component\Utility\Unicode;
+use Drupal\openai\Utility\StringHelper;
+
+/**
+ * Implements hook_form_alter().
+ */
+function openai_content_form_alter(array &$form, FormStateInterface $form_state, $form_id) {
+  if (preg_match('/node_(add|.*_edit)_form/', $form_id)) {
+    $config = \Drupal::config('openai_embeddings.settings');
+    $entity_types = $config->get('entity_types');
+    $entity = $form_state->getFormObject()->getEntity();
+
+    if (!empty($entity_types) && array_key_exists($entity->getEntityTypeId(), $entity_types)) {
+      if (in_array($entity->bundle(), $entity_types[$entity->getEntityTypeId()])) {
+        $form['openai_title_check'] = [
+          '#type' => 'details',
+          '#title' => t('Check for similar titles'),
+          '#group' => 'advanced',
+        ];
+
+        $form['openai_title_check']['response'] = [
+          '#type' => 'markup',
+          '#markup' => t('Having very similar page titles can negatively impact your <a href=":google_url">search engine ranking</a>. You can run a similarity search against your content in <a href=":pinecone_url">Pinecone</a> to see if you have other similar page titles.',
+            [
+              ':google_url' => 'https://developers.google.com/search/docs/fundamentals/seo-starter-guide#uniquepagetitles',
+              ':pinecone_url' => 'https://pinecone.io'
+            ]
+          ),
+          '#prefix' => '<div id="openai-title-check-response">',
+          '#suffix' => '</div>',
+        ];
+
+        $form['openai_title_check']['check'] = [
+          '#type' => 'button',
+          '#value' => t('Run check'),
+          '#limit_validation_errors' => [],
+          '#ajax' => [
+            'callback' => 'openai_content_node_title_check',
+            'wrapper' => 'openai-title-check-response',
+          ],
+        ];
+
+        $form['openai_summarize'] = [
+          '#type' => 'details',
+          '#title' => t('Summarize text'),
+          '#group' => 'advanced',
+        ];
+
+        $form['openai_summarize']['response'] = [
+          '#type' => 'markup',
+          '#markup' => t('This will use the node body field and OpenAI will attempt to summarize it for you. You can use the result to help generate a summary/teaser, social media share text, or similar.'),
+          '#prefix' => '<div id="openai-summarize-response">',
+          '#suffix' => '</div>',
+        ];
+
+        $form['openai_summarize']['do_summarize'] = [
+          '#type' => 'button',
+          '#value' => t('Summarize'),
+          '#limit_validation_errors' => [],
+          '#ajax' => [
+            'callback' => 'openai_content_node_field_summarize',
+            'wrapper' => 'openai-summarize-response',
+          ],
+        ];
+
+        $form['openai_suggest'] = [
+          '#type' => 'details',
+          '#title' => t('Suggest taxonomy'),
+          '#group' => 'advanced',
+        ];
+
+        $form['openai_suggest']['response'] = [
+          '#type' => 'markup',
+          '#markup' => t('OpenAI can attempt to suggest possible classification terms to use as taxonomy.'),
+          '#prefix' => '<div id="openai-suggest-response">',
+          '#suffix' => '</div>',
+        ];
+
+        $form['openai_suggest']['do_suggest'] = [
+          '#type' => 'button',
+          '#value' => t('Suggest taxonomy'),
+          '#limit_validation_errors' => [],
+          '#ajax' => [
+            'callback' => 'openai_content_node_suggest_taxonomy',
+            'wrapper' => 'openai-suggest-response',
+          ],
+        ];
+      }
+    }
+  }
+}
+
+/**
+ * The AJAX callback for running a semantic similarity search on the title.
+ *
+ * @param array $form
+ *   The node form.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ *
+ * @return \Drupal\Core\Ajax\AjaxResponse
+ *   The HTML response.
+ */
+function openai_content_node_title_check(array &$form, FormStateInterface $form_state) {
+  $title = $form_state->getValue('title')[0]['value'];
+  $form_entity = $form_state->getFormObject()->getEntity();
+
+  if (!empty($title)) {
+    $client = \Drupal::service('openai.client');
+    $pinecone = \Drupal::service('openai_embeddings.pinecone_client');
+    $embedding = [];
+
+    if ($form_entity instanceof NodeInterface && $form_entity->id()) {
+      $query_result = \Drupal::database()->query('SELECT entity_id, embedding FROM {openai_embeddings} WHERE entity_id = :entity_id AND field_name = :field_name LIMIT 1',
+        [
+          ':entity_id' => $form_entity->id(),
+          ':field_name' => 'title'
+        ]
+      )->fetchAssoc();
+
+      $embedding = json_decode($query_result['embedding'])->data;
+    } else {
+      $title = StringHelper::prepareText($title, [], 512);
+
+      $response = $client->embeddings()->create([
+        'model' => 'text-embedding-ada-002',
+        'input' => $title,
+      ]);
+
+      $embeddings = $response->toArray();
+      $embedding = $embeddings["data"][0]["embedding"];
+    }
+
+    $response = $pinecone->query(
+      $embedding,
+      5,
+      TRUE,
+      FALSE,
+      [
+        'field_name' => 'title',
+        'entity_type' => 'node',
+      ],
+      'node:title'
+    );
+
+    $result = json_decode($response->getBody()->getContents());
+    $output = '<ul>';
+    $tracked = [];
+
+    foreach ($result->matches as $match) {
+      if ($match->score < .75) {
+        continue;
+      }
+
+      $entity = \Drupal::entityTypeManager()->getStorage($match->metadata->entity_type)->load($match->metadata->entity_id);
+
+      if ($form_entity instanceof NodeInterface && $form_entity->id() == $entity->id()) {
+        continue;
+      }
+
+      $output .= '<li>' . $entity->toLink()->toString() . ' (relevancy score: ' . $match->score . ')</li>';
+      $tracked[] = $entity->id();
+    }
+
+    $output .= '</ul>';
+
+    if (empty($tracked)) {
+      $output = '<p>No similar titles were found, or results were excluded because they did not meet the relevancy score threshold.</p>';
+    } else {
+      $heading = '<p><strong>Similarity Results</strong></p>';
+      $heading .= '<p>The following nodes have titles similar to the one you are using. You may want to consider adjusting this title so it is not as similar for search engine optimization reasons.</p>';
+      $output = $heading . $output;
+    }
+
+    $response = new AjaxResponse();
+    $response->addCommand(new HtmlCommand('#openai-title-check-response', $output));
+    return $response;
+  }
+}
+
+/**
+ * The AJAX callback for summarizing a field.
+ *
+ * @param array $form
+ *   The node form.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ *
+ * @return \Drupal\Core\Ajax\AjaxResponse
+ *   The HTML response.
+ */
+function openai_content_node_field_summarize(array &$form, FormStateInterface $form_state) {
+  $body = $form_state->getValue('body')[0]['value'];
+
+  if (!empty($body)) {
+    $client = \Drupal::service('openai.client');
+    $body = StringHelper::prepareText($body, [], 3900);
+
+    $response = $client->completions()->create(
+      [
+        'model' => 'text-davinci-003',
+        'prompt' => 'Create a detailed summary of the following text in less than 130 words:\r\n"' . $body . '"',
+        'temperature' => 0.7,
+        'max_tokens' => 2048,
+      ],
+    );
+
+    $result = $response->toArray();
+    $text = trim($result["choices"][0]["text"]) ?? t('No result could be generated.');
+  } else {
+    $text = t('The body field has no text. Please supply content to the body field.');
+  }
+
+  $response = new AjaxResponse();
+  $response->addCommand(new HtmlCommand('#openai-summarize-response', $text));
+  return $response;
+}
+
+/**
+ * The AJAX callback for suggesting taxonomy.
+ *
+ * @param array $form
+ *   The node form.
+ * @param \Drupal\Core\Form\FormStateInterface $form_state
+ *   The form state.
+ *
+ * @return \Drupal\Core\Ajax\AjaxResponse
+ *   The HTML response.
+ */
+function openai_content_node_suggest_taxonomy(array &$form, FormStateInterface $form_state) {
+  $body = $form_state->getValue('body')[0]['value'];
+
+  if (!empty($body)) {
+    $client = \Drupal::service('openai.client');
+    $body = StringHelper::prepareText($body, [], 3900);
+
+    $response = $client->completions()->create(
+      [
+        'model' => 'text-davinci-003',
+        'prompt' => 'Suggest five words to classify the following text. The words must be nouns or adjectives:\r\n"' . $body . '"',
+        'temperature' => 0.4,
+        'max_tokens' => 2048,
+      ],
+    );
+
+    $result = $response->toArray();
+    $text = trim($result["choices"][0]["text"]) ?? t('No terms could be generated from the provided input.');
+  } else {
+    $text = t('The body field has no text. Please supply content to the body field.');
+  }
+
+  $response = new AjaxResponse();
+  $response->addCommand(new HtmlCommand('#openai-suggest-response', $text));
+  return $response;
+}

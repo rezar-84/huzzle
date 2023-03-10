@@ -1,0 +1,15 @@
+openai.admin_config_openai:
+  path: '/admin/config/openai'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'OpenAI Settings'
+  requirements:
+    _permission: 'administer site configuration'
+
+openai.api_settings:
+  path: '/admin/config/openai/settings'
+  defaults:
+    _title: 'OpenAI settings'
+    _form: 'Drupal\openai\Form\ApiSettingsForm'
+  requirements:
+    _permission: 'administer site configuration'

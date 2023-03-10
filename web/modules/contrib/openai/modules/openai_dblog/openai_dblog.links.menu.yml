@@ -1,0 +1,5 @@
+openai_dblog.settings:
+  title: Log analyzer settings
+  description: Manage OpenAI log analyzer settings.
+  parent: openai.admin_config_openai
+  route_name: openai_dblog.settings

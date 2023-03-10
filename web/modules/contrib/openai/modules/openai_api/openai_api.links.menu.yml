@@ -1,0 +1,13 @@
+openai_api.content_generation_config:
+  title: Content generation
+  description: Demonstrates basic content generation.
+  parent: openai.admin_config_openai
+  route_name: openai_api.content_generation_config
+  weight: 2
+
+#openai_api.image_generation_config:
+#  title: Image generation
+#  description: Demonstrates basic image generation.
+#  parent: openai.admin_config_openai
+#  route_name: openai_api.image_generation_config
+#  weight: 10

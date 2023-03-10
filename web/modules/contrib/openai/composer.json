@@ -1,0 +1,22 @@
+{
+    "name": "drupal/openai",
+    "description": "A set of modules to enable OpenAI integration with Drupal.",
+    "keywords": ["openai", "GPT-3", "DALL-E", "content generation", "AI content", "gpt", "content moderation"],
+    "type": "drupal-module",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Kevin Quillen",
+            "homepage": "https://kevinquillen.com",
+            "role": "Maintainer"
+        },
+        {
+            "name": "Julien Alombert",
+            "email": "alombertjulien@gmail.com",
+            "role": "Maintainer"
+        }
+    ],
+    "require": {
+        "openai-php/client": "^v0.3.4"
+    }
+}
